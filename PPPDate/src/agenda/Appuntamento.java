@@ -14,15 +14,15 @@ public class Appuntamento {
 
 
     public Appuntamento(String data, String ora, int durata_minuti, String nome_persona, String luogo) throws AppuntamentoException {
-        validaCampi(data, ora, durata_minuti, nome_persona, luogo);
+        validaCampi(data, ora, durata_minuti, nome_persona);
 
-        format = new SimpleDateFormat("dd-MM-yyyy-kk-mm");
+        format = new SimpleDateFormat("dd-MM-yyyy-HH-mm");
         this.durata = durata_minuti;
 
         try {
             data_ora_inizio = format.parse(data + "-" + ora);
             data_ora_fine = format.parse(data + "-" + add_offset(ora));
-            //System.out.println(data_ora_inizio + " -> " + data_ora_fine);
+            //System.out.println(format.format(data_ora_inizio) + " -> " + data_ora_fine);
         } catch (ParseException e) {
             throw new AppuntamentoException("Errore formattazzione parametri");
         }
@@ -32,27 +32,20 @@ public class Appuntamento {
     }
 
 
-    private void validaCampi(String data, String ora, int durata_minuti, String nome_persona, String luogo) throws AppuntamentoException {
-        if(!data.matches("^\\d{2}-\\d{2}-\\d{4}$")) throw new AppuntamentoException("Formato data invalido");
-        if(!ora.matches("^\\d{2}-\\d{2}$")) throw new AppuntamentoException("Formato ora invalido");
+    private void validaCampi(String data, String ora, int durata_minuti, String nome_persona) throws AppuntamentoException {
+        if(!data.matches("^\\d{2}-\\d{2}-\\d{4}$")) throw new AppuntamentoException("Formato data invalido <dd-mm-aaaa>");
+        if(!ora.matches("^\\d{2}-\\d{2}$")) throw new AppuntamentoException("Formato ora invalido <hh-mm> 24h format");
         if(!nome_persona.matches("^[A-Z][a-z]+$")) throw new AppuntamentoException("Formato nome invalido");
     }
 
+    private String add_offset(String minuti_ore) {
+        int minuti = Integer.parseInt(minuti_ore.substring(3));
+        int ore = Integer.parseInt(minuti_ore.substring(0,2));
 
-    private String add_offset(String ora) {
-        int oraOff = Integer.parseInt(ora.substring(0, 2));
-        int minOff = Integer.parseInt(ora.substring(3));
+        minuti += durata;
 
-
-        minOff += durata;
-
-        oraOff += (minOff / 60);
-        minOff = minOff % 60;
-
-
-        return Integer.toString(oraOff).concat("-"+Integer.toString(minOff));
+        return Integer.toString(ore).concat("-"+Integer.toString(minuti));
     }
-
 
     public Date inzio() {
         return data_ora_inizio;
@@ -60,5 +53,29 @@ public class Appuntamento {
 
     public Date fine() {
         return data_ora_fine;
+    }
+
+    public String toString(){
+        return getData() + " " + getOra() + " " + durata + " " + nomePersona + " " + luogoAppuntamento;
+    }
+
+    public String getData() {
+        return format.format(data_ora_inizio).substring(0, 10);
+    }
+
+    public String getOra() {
+        return format.format(data_ora_inizio).substring(11, 16);
+    }
+
+    public int getDurata() {
+        return durata;
+    }
+
+    public String getNome() {
+        return nomePersona;
+    }
+
+    public String getLuogo() {
+        return luogoAppuntamento;
     }
 }
