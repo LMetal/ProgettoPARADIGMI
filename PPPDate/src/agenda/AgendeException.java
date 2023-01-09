@@ -1,6 +1,6 @@
 package agenda;
 
-public class AgendeException extends Throwable {
+public class AgendeException extends Exception {
     public AgendeException(String messaggio) {
         super(messaggio);
     }
