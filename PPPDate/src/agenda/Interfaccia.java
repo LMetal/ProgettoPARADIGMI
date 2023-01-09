@@ -64,8 +64,8 @@ public class Interfaccia {
         try {
             Agende.createAgenda(Input.readString());
         } catch (AgendeException e) {
-            System.out.println("ERRORE");
-            System.out.println(e.getMessage());
+            System.out.println("ERRORE -> " + e.getMessage());
+            System.out.println("Agenda non modificata\n\n");
         }
     }
 
@@ -145,67 +145,44 @@ class metodiAgenda{
 
         System.out.print("SCELTA: ");
 
-        try{
-            switch (Input.readInt()) {
-                case 1 -> {
-                    System.out.print("Inserire nuova data: ");
-                    try {
+        try {
+                switch (Input.readInt()) {
+                    case 1 -> {
+                        System.out.print("Inserire nuova data: ");
                         a.modificaData(indice, Input.readString());
-                    } catch (AppuntamentoException | AgendaException e) {
-                        System.out.println("ERRORE");
-                        System.out.println(e.getMessage());
                     }
-                }
 
-                case 2 -> {
-                    System.out.print("Inserire nuova ora: ");
-                    try {
+                    case 2 -> {
+                        System.out.print("Inserire nuova ora: ");
                         a.modificaOra(indice, Input.readString());
-                    } catch (AppuntamentoException | AgendaException e) {
-                        System.out.println("ERRORE");
-                        System.out.println(e.getMessage());
                     }
-                }
 
-                case 3 -> {
-                    System.out.print("Inserire nuova durata: ");
-                    try {
+                    case 3 -> {
+                        System.out.print("Inserire nuova durata: ");
                         a.modificaDurata(indice, Input.readInt());
-                    } catch (AppuntamentoException | AgendaException e) {
-                        System.out.println("ERRORE -> Appuntamento non modificato");
-                        System.out.println(e.getMessage());
                     }
-                }
 
-                case 4 -> {
-                    System.out.print("Inserire nuovo nome della persona: ");
-                    try {
+                    case 4 -> {
+                        System.out.print("Inserire nuovo nome: ");
                         a.modificaNome(indice, Input.readString());
-                    } catch (AppuntamentoException | AgendaException e) {
-                        System.out.println("ERRORE -> Appuntamento non modificato");
-                        System.out.println(e.getMessage());
                     }
-                }
 
-                case 5 -> {
-                    System.out.print("Inserire nuovo luogo: ");
-                    try {
+                    case 5 -> {
+                        System.out.print("Inserire nuovo luogo: ");
                         a.modificaLuogo(indice, Input.readString());
-                    } catch (AppuntamentoException | AgendaException e) {
-                        System.out.println("ERRORE -> Appuntamento non modificato");
-                        System.out.println(e.getMessage());
                     }
-                }
 
-                case 0 -> {
-                    return;
-                }
-
-                default -> System.out.println("ERRORE\n");
+                    case 0 -> {
+                        return;
+                    }
+                    default -> System.out.println("ERRORE -> Scelta non valida\n");
             }
         }
         catch (Exception e){
             System.out.println("ERRORE -> Formato scelta non valido\n\n");
+        } catch (AppuntamentoException | AgendaException e) {
+            System.out.println("ERRORE -> " + e.getMessage());
+            System.out.println("Appuntamento non modificato\n\n");
         }
     }
 
