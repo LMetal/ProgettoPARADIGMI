@@ -3,6 +3,7 @@ package agenda;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public class Agenda {
     private final ArrayList<Appuntamento> appuntamenti;
@@ -50,7 +51,27 @@ public class Agenda {
         add(new Appuntamento(data, ora, durata, nome, luogo));
     }
 
+    /*private void validaSovrapposizioniOld(Appuntamento newApp) throws AgendaException {
+        try {
+            appuntamenti.forEach(a -> {
+                try {
+                    a.isSovrapposto(newApp);
+                } catch (AppuntamentoException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (Exception e) {
+            throw new AgendaException("Presente sovrapposizione");
+        }
+
+
+    }*/
+
     private void validaSovrapposizioni(Appuntamento newApp) throws AgendaException {
+        if(appuntamenti.stream().anyMatch(app -> app.isSovrapposto(newApp))) throw new AgendaException("Presente sovrapposizione");
+    }
+
+    private void validaSovrapposizioni2(Appuntamento newApp) throws AgendaException {
         if(appuntamenti.contains(newApp)) throw new AgendaException("Presente sovrapposizione");
     }
 

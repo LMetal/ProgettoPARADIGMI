@@ -23,11 +23,12 @@ public class TestAppuntamento {
         assertEquals("Formato data invalido <dd-mm-aaaa>", ex.getMessage());
 
         ex = assertThrows(AppuntamentoException.class, () -> new Appuntamento("11-12-2022", "09-3", 120, "Pippo", "Casa"));
-
         assertEquals("Formato ora invalido <hh-mm> 24h format", ex.getMessage());
 
-        ex = assertThrows(AppuntamentoException.class, () -> new Appuntamento("11-12-2022", "09-30", 120, "Pippo4", "Casa"));
+        ex = assertThrows(AppuntamentoException.class, () -> new Appuntamento("11-12-2022", "09-30", -60, "Pippo", "Casa"));
+        assertEquals("Formato durata invalida <int maggiore di 0>", ex.getMessage());
 
+        ex = assertThrows(AppuntamentoException.class, () -> new Appuntamento("11-12-2022", "09-30", 120, "Pippo4", "Casa"));
         assertEquals("Formato nome invalido", ex.getMessage());
     }
 
@@ -86,6 +87,97 @@ public class TestAppuntamento {
         assertEquals(120, ap2.getDurata());
         assertEquals("James T. Kirk", ap2.getNome());
         assertEquals("casa", ap2.getLuogo());
+
+    }
+
+    @Test
+    void testIsSovrapposto() throws AppuntamentoException {
+        //
+        // 1                    |----------|
+        // 2  |--------------|  .
+        // 3                    .        |--------|
+        // 4            |-------|
+        //
+
+        Appuntamento ap1 = new Appuntamento("01-01-2000","02-10", 60, "Leo", "ufficio");
+        Appuntamento ap2 = new Appuntamento("01-01-2000","00-00", 120, "Leo", "casa");
+        Appuntamento ap3 = new Appuntamento("01-01-2000","03-00", 10, "Leo", "ufficio");
+        Appuntamento ap4 = new Appuntamento("01-01-2000","01-10", 60, "Leo", "ufficio");
+
+        assertFalse(ap1.isSovrapposto(ap2));    //  1 - 2
+        assertFalse(ap2.isSovrapposto(ap1));    //  2 - 1
+
+        assertFalse(ap4.isSovrapposto(ap1));    //  4 - 1
+        assertFalse(ap1.isSovrapposto(ap4));    //  1 - 4
+
+        assertTrue(ap1.isSovrapposto(ap3));     //  1 - 3
+
+        assertTrue(ap3.isSovrapposto(ap1));     //  3 - 1
+    }
+
+    @Test
+    void testCompareTo() throws AppuntamentoException {
+        //
+        // 1                    |----------|
+        // 2  |--------------|  .
+        // 3                    .        |--------|
+        // 4            |-------|
+        //
+
+        Appuntamento ap1 = new Appuntamento("02-01-2000","02-10", 60, "Leo", "ufficio");
+        Appuntamento ap2 = new Appuntamento("02-01-2000","00-00", 120, "Leo", "casa");
+        Appuntamento ap3 = new Appuntamento("02-01-2000","03-00", 10, "Leo", "ufficio");
+        Appuntamento ap4 = new Appuntamento("02-01-2000","01-10", 60, "Leo", "ufficio");
+
+        assertEquals(ap1.inzio().compareTo(ap2.inzio()), ap1.compareTo(ap2));
+        assertEquals(ap2.inzio().compareTo(ap1.inzio()), ap2.compareTo(ap1));
+
+        assertEquals(ap1.inzio().compareTo(ap2.inzio()), ap4.compareTo(ap2));
+
+        assertEquals(ap3.inzio().compareTo(ap2.inzio()), ap3.compareTo(ap2));
+    }
+
+    @Test
+    void testEquals() throws AppuntamentoException {
+        //
+        // 1        |----------|
+        // 2        |----------|
+        // 3   |---------------|
+        // 4                   |-----------|
+        // 5        |----|
+        // 6        |------------------|
+        //
+
+        Appuntamento ap1 = new Appuntamento("01-01-2000","02-10", 60, "Leo", "ufficio");
+        Appuntamento ap2 = new Appuntamento("01-01-2000","02-10", 60, "pippo", "ufficio");
+        Appuntamento ap3 = new Appuntamento("01-01-2000","01-10", 120, "Leo", "ufficio");
+        Appuntamento ap4 = new Appuntamento("01-01-2000","03-10", 120, "Leo", "ufficio");
+        Appuntamento ap5 = new Appuntamento("01-01-2000","02-10", 30, "Leo", "ufficio");
+        Appuntamento ap6 = new Appuntamento("01-01-2000","02-10", 100, "Leo", "ufficio");
+
+        assertEquals(ap1, ap2);     //assertEquals applica ap1.equals(ap2)
+        assertEquals(ap2, ap1);
+
+        assertNotEquals(ap1, ap3);
+        assertNotEquals(ap1, ap4);
+        assertNotEquals(ap1, ap5);
+        assertNotEquals(ap1, ap6);
+
+    }
+
+    @Test
+    void testStringToFromFile() throws AppuntamentoException {
+        Appuntamento ap1 = new Appuntamento("01-01-2000","02-10", 60, "Leo", "ufficio");
+        Appuntamento ap2 = new Appuntamento("01-01-2023","13-20", 120, "Rick", "casa");
+
+        String ap1Str = "01-01-2000,02-10,60,Leo,ufficio";
+        String ap2Str = "01-01-2023,13-20,120,Rick,casa";
+
+        assertEquals(ap1Str, ap1.toStringFile());
+        assertEquals(ap2Str, ap2.toStringFile());
+
+        assertEquals(ap1, new Appuntamento(ap1Str));
+        assertEquals(ap2, new Appuntamento(ap2Str));
 
     }
 }

@@ -14,7 +14,7 @@ public class Appuntamento implements Comparable {
 
 
     public Appuntamento(String data, String ora, int durata_minuti, String nome_persona, String luogo) throws AppuntamentoException {
-        validaCampi(data, ora, nome_persona, luogo);
+        validaCampi(data, ora, durata_minuti, nome_persona, luogo);
 
         this.durata = durata_minuti;
 
@@ -29,19 +29,19 @@ public class Appuntamento implements Comparable {
         this.luogoAppuntamento = luogo;
     }
 
-    public Appuntamento(String fileLine) throws AppuntamentoException {
+    public Appuntamento(String fileLine) throws AppuntamentoException { //RIGUARDA
         String[] dati = fileLine.split(",");
 
         if(dati.length != 5) throw new AppuntamentoException("Formato appuntamento invalido");
 
-        validaCampi(dati[0], dati[1], dati[3], dati[4]);    //aggiungi check durata positiva
+        validaCampi(dati[0], dati[1], Integer.parseInt(dati[2]), dati[3], dati[4]);    //aggiungi check durata positiva
 
 
         this.durata = Integer.parseInt(dati[2]);
 
         try {
             data_ora_inizio = LocalDateTime.parse(dati[0] + "-" + dati[1], format);
-            data_ora_fine = LocalDateTime.parse(dati[0] + "-" + dati[1], format);
+            data_ora_fine = LocalDateTime.parse(dati[0] + "-" + dati[1], format).plusMinutes(Integer.parseInt(dati[2]));
         } catch (DateTimeParseException e) {
             throw new AppuntamentoException("Errore formattazzione parametri da file");
         }
@@ -51,9 +51,10 @@ public class Appuntamento implements Comparable {
     }
 
 
-    private void validaCampi(String data, String ora, String nome_persona, String luogo) throws AppuntamentoException {
+    private void validaCampi(String data, String ora, int durata, String nome_persona, String luogo) throws AppuntamentoException {
         if(!data.matches("^\\d{2}-\\d{2}-\\d{4}$")) throw new AppuntamentoException("Formato data invalido <dd-mm-aaaa>");      //puoi fare meglio
         if(!ora.matches("^\\d{2}-\\d{2}$")) throw new AppuntamentoException("Formato ora invalido <hh-mm> 24h format");         //puoi fare meglio
+        if(durata <= 0) throw new AppuntamentoException("Formato durata invalida <int maggiore di 0>");
         if(!nome_persona.matches("^\\D+$")) throw new AppuntamentoException("Formato nome invalido"); //^[A-Z][a-z]+$
         if(!luogo.matches("^\\D+$")) throw new AppuntamentoException("Formato luogo invalido"); //^[A-Z][a-z]+$
 
@@ -95,15 +96,19 @@ public class Appuntamento implements Comparable {
 		return toString().replace('\t', ',').replace(",,", ",");
 	}
 
-
-    @Override
-    public boolean equals(Object a) {
-        Appuntamento newApp = (Appuntamento) a;
+    public boolean isSovrapposto(Appuntamento newApp){
         if(this.inzio().isBefore(newApp.fine()) && this.fine().isAfter(newApp.fine()) || this.inzio().compareTo(newApp.inzio()) == 0) return true;
 
         if(newApp.inzio().isBefore(this.fine()) && newApp.fine().isAfter(this.fine()) || this.fine().compareTo(newApp.fine()) == 0) return true;
 
         return false;
+    }
+
+    @Override
+    public boolean equals(Object a) {
+        Appuntamento app = (Appuntamento) a;
+
+        return this.data_ora_inizio.compareTo(app.data_ora_inizio) == 0 && this.data_ora_fine.compareTo(app.data_ora_fine) == 0;
     }
 
     @Override
